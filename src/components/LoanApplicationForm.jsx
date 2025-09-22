@@ -77,8 +77,6 @@ const LoanApplicationForm = ({ lender, lenderTerm, onLoanRequested,paymentMethod
                 return false
             }
 
-            console.log(paymentAccountId,paymentMethod);
-            
             const response = await requestLoan({
                 lenderId: lender.id,
                 amount: parseFloat(formData.amount),
