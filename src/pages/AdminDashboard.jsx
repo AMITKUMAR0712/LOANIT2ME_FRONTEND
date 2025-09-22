@@ -9,14 +9,11 @@ import PaymentManagement from '../components/admin/PaymentManagement';
 import AuditLogManagement from '../components/admin/AuditLogManagement';
 import NotificationManagement from '../components/admin/NotificationManagement';
 import {
+  me,
   fetchAdminUsers,
   fetchAdminLoans,
   fetchAdminRelationships,
   fetchAdminLenderTerms,
-  fetchAdminPayments,
-  fetchAdminAuditLogs,
-  fetchAdminNotifications,
-  fetchLenderTerms,
   logout,
 } from '../lib/api';
 
@@ -46,22 +43,22 @@ const AdminDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [showProfile, setShowProfile] = useState(false);
-  const [userDetails, setUserDetails] = useState({ fullName: 'Admin', email: 'admin@example.com' });
+  const [userDetails, setUserDetails] = useState({});
   const [loans, setLoans] = useState([])
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [usersRes, loansRes, relationshipsRes, lenderTermsRes, paymentsRes] = await Promise.all([
+        const [UserDetails, usersRes, loansRes, relationshipsRes, lenderTermsRes] = await Promise.all([
+          me(),
           fetchAdminUsers(),
           fetchAdminLoans(),
           fetchAdminRelationships(),
           fetchAdminLenderTerms(),
-          fetchAdminPayments(),
-          fetchLenderTerms(),
         ]);
 
+        setUserDetails(UserDetails || {})
         setLoans(loansRes.loans);
         setStats({
           totalUsers: usersRes.users.length,
@@ -100,7 +97,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="font-noto-serif-jp min-h-screen bg-nyanza-900">
+    <div className=" font-noto-serif-jp min-h-screen bg-gradient-to-br from-nyanza-900 via-celadon-900 to-fern_green-900">
       {/* Header */}
       <header className="flex items-center justify-between h-[10vh] w-full  bg-gradient-to-r from-fern_green-800 to-fern_green-400 text-white shadow-md p-6 fixed top-0 left-0 right-0 z-10">
         <div className="flex items-center gap-3">
@@ -108,37 +105,41 @@ const AdminDashboard = () => {
           <img src="/logo.svg" alt="logo" className="w-[7rem] h-[7rem]" />
           <h2 className="text-xl font-bold text-fern_green-200">Admin Dashboard</h2>
         </div>
-        <div className="relative">
-          <button
-            onClick={() => setShowProfile(!showProfile)}
-            className="bg-fern_green-300 text-white px-4 py-2 rounded-lg hover:bg-fern_green-400 transition-all duration-200 font-medium"
-          >
-            {userDetails.fullName}
+
+        <div className="flex items-center justify-center gap-4">
+
+          {/* user popup */}
+          <button onClick={() => setShowProfile(!showProfile)}
+            className="bg-gradient-to-r from-fern_green-500 to-fern_green-600 text-white px-6 py-3 rounded-xl hover:from-fern_green-400 hover:to-fern_green-500 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105">
+            {userDetails?.fullName}
           </button>
           {showProfile && (
-            <div className="min-h-[15%] min-w-[12%] shadow-lg z-20 absolute top-full right-0 rounded-2xl bg-nyanza-900 border border-celadon-500">
-              <div className="p-4 flex flex-col items-center justify-center">
-                <div className="w-[3rem] h-[3rem] flex items-center justify-center p-4 bg-fern_green-300 text-white rounded-full mb-2 font-bold">
-                  {userDetails.fullName[0]}
-                </div>
-                <h3 className="text-lg font-semibold text-fern_green-400">Name: {userDetails.fullName}</h3>
-                <p className="text-sm text-fern_green-300">Email: {userDetails.email}</p>
+            <div className="min-h-[15%] min-w-[12%] shadow-2xl z-20 absolute top-full right-0 rounded-2xl bg-gradient-to-b from-nyanza-900 to-celadon-900 border border-celadon-500 backdrop-blur-sm">
+              <div className="p-6 flex flex-col items-center justify-center">
+                <div className="w-[4rem] h-[4rem] flex items-center justify-center p-4 bg-gradient-to-r from-fern_green-500 to-mantis-500 text-white rounded-full mb-3 font-bold text-xl shadow-lg">{userDetails?.fullName[0]}</div>
+                <h3 className="text-lg font-semibold text-fern_green-400 mb-2">{`Name: ${userDetails?.fullName}`}</h3>
+                <p className="text-sm text-fern_green-300 mb-1">{`Email: ${userDetails?.email}`}</p>
+                {userDetails?.phoneNumber && (
+                  <p className="text-xs text-fern_green-300">{`Phone: ${userDetails?.phoneNumber}`}</p>
+                )}
                 <button
                   onClick={() => {
                     handleLogout()
                     window.location.reload()
                   }}
-                  className="mt-4 bg-fern_green-300 text-white px-4 py-2 rounded-lg hover:bg-fern_green-400 transition-all duration-200 w-full text-center font-medium"
-                >
-                  Logout
-                </button>
+                  className="mt-3 bg-gradient-to-r from-fern_green-500 to-fern_green-600 text-white px-6 py-3 rounded-xl hover:from-fern_green-400 hover:to-fern_green-500 transition-all duration-300 w-full text-center font-medium shadow-lg hover:shadow-xl transform hover:scale-105">Logout</button>
               </div>
             </div>
           )}
+
         </div>
       </header>
 
-      <div className="flex min-h-[90vh] bg-nyanza-900">
+      <div className="flex min-h-[90vh] bg-nyanza-900"
+        onClick={() => {
+          setShowProfile(false)
+        }}
+      >
         <AdminSidebar activeSection={activeSection} setActiveSection={setActiveSection} />
 
         <main className="flex-1 p-6 ml-[20%] mt-[10vh] min-h-[90vh] overflow-hidden">
