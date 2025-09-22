@@ -80,7 +80,8 @@ export default function CreateTermModal({ isOpen, onClose, onTermCreated }) {
                                 onChange={handleInputChange}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="200.00"
-                                step="0.01"
+                                step="0.1"
+                                min="0"
                                 required
                             />
                         </div>
@@ -96,7 +97,7 @@ export default function CreateTermModal({ isOpen, onClose, onTermCreated }) {
                                 onChange={handleInputChange}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="10"
-                                step="0.01"
+                                step="0.1"
                                 required
                             />
                             <p className="text-xs text-gray-500 mt-1">
@@ -132,7 +133,8 @@ export default function CreateTermModal({ isOpen, onClose, onTermCreated }) {
                                     onChange={handleInputChange}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     placeholder="1.00"
-                                    step="0.01"
+                                    step="0.1"
+                                    min="0"
                                     required
                                 />
                             </div>
@@ -147,7 +149,8 @@ export default function CreateTermModal({ isOpen, onClose, onTermCreated }) {
                                     onChange={handleInputChange}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     placeholder="2.00"
-                                    step="0.01"
+                                    step="0.1"
+                                    min="0"
                                     required
                                 />
                             </div>
