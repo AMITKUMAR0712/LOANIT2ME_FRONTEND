@@ -23,7 +23,7 @@ import CreateTermModal from "../components/CreateTermModal"
 import EditTermModal from "../components/EditTermModal"
 import PreferredPaymentMethodsModal from "../components/PreferredPaymentMethodsModal"
 import ManualPaymentConfirmationModal from "../components/ManualPaymentConfirmationModal"
-import { fetchLenderTerms, fetchLenderLoans, fetchLenderRelationships, updateRelationship, me, denyLoan, createNotification, logout, processPayment, confirmPayPalPayment, uploadPaymentScreenshot, confirmManualPayment } from "../lib/api"
+import { fetchLenderTerms, fetchLenderLoans, fetchLenderRelationships, updateRelationship, me, denyLoan, createNotification, logout, processPayment, confirmPayPalPayment, uploadPaymentScreenshot, confirmManualPayment, getPrefferedPaymentId } from "../lib/api"
 import LoanDetailsModal from "@/components/LenderLoanDetailsModal"
 import PaymentMethodSelector from "@/components/PaymentMethodSelector"
 import StripePaymentModal from "@/components/StripePaymentModal"
@@ -96,6 +96,7 @@ export default function LenderDashboard() {
     const [showPreferredPaymentModal, setShowPreferredPaymentModal] = useState(false)
     const [showManualPaymentModal, setShowManualPaymentModal] = useState(false)
     const [selectedPayment, setSelectedPayment] = useState(null)
+    const [paymentId, setPaymentId] = useState(null)
 
     useEffect(() => {
         fetchData()
@@ -173,6 +174,13 @@ export default function LenderDashboard() {
                     return
                 }
                 setShowFundingModal(loan)
+                // console.log(loan.agreedPaymentAccountId);
+                // console.log(loan.borrower);
+
+
+                const id = getPrefferedPaymentId(loan.borrower.id, loan.agreedPaymentMethod)
+                setPaymentId(id)
+
                 setSelectedPaymentMethod(loan.agreedPaymentMethod) // Reset to default
             } else if (action === "deny") {
                 await denyLoan(loanId)
@@ -909,6 +917,8 @@ export default function LenderDashboard() {
                                 <p className="font-medium">Amount: ${showFundingModal.amount.toFixed(2)}</p>
                                 <p className="text-sm text-gray-600">To: {showFundingModal.borrower.fullName}</p>
                                 <p className="text-sm text-gray-600">Email: {showFundingModal.borrower.email}</p>
+                                <p className="text-sm text-gray-600">{showFundingModal.agreedPaymentMethod}: {paymentId}</p>
+
                             </div>
                         </div>
 
@@ -923,26 +933,26 @@ export default function LenderDashboard() {
                             /> */}
 
                             {paymentMethods.map((method) => (
-                                method.id==showFundingModal.agreedPaymentMethod ?
-                                <button
-                                    key={method.id}
-                                    className="w-full p-3 flex items-center justify-between hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg transition-colors"
-                                >
-                                    <div className="flex items-center space-x-3">
-                                        {method.icon}
-                                        <div className="text-left">
-                                            <p className="font-medium flex items-center">
-                                                {method.name}
-                                                {method.isManual && (
-                                                    <span className="ml-2 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">
-                                                        Manual
-                                                    </span>
-                                                )}
-                                            </p>
-                                            <p className="text-sm text-gray-500">{method.description}</p>
+                                method.id == showFundingModal.agreedPaymentMethod ?
+                                    <button
+                                        key={method.id}
+                                        className="w-full p-3 flex items-center justify-between hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg transition-colors"
+                                    >
+                                        <div className="flex items-center space-x-3">
+                                            {method.icon}
+                                            <div className="text-left">
+                                                <p className="font-medium flex items-center">
+                                                    {method.name}
+                                                    {method.isManual && (
+                                                        <span className="ml-2 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">
+                                                            Manual
+                                                        </span>
+                                                    )}
+                                                </p>
+                                                <p className="text-sm text-gray-500">{method.description}</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                </button> : ""
+                                    </button> : ""
                             ))}
 
                         </div>
