@@ -13,9 +13,11 @@ import {
     ShieldCheck,
     User2,
     Bell,
-    Eye
+    Eye,
+    Smartphone,
+    Wallet
 } from "lucide-react"
-import { fetchBorrowerLoans, fetchBorrowerRelationships, fetchNotifications, logout, markNotificationAsRead, me, processPayment, confirmPayPalPayment, uploadPaymentScreenshot, confirmManualPayment, getPaymentId } from "../lib/api"
+import { fetchBorrowerLoans, fetchBorrowerRelationships, fetchNotifications, logout, markNotificationAsRead, me, processPayment, confirmPayPalPayment, uploadPaymentScreenshot, confirmManualPayment, getPaymentId, getPrefferedPaymentId } from "../lib/api"
 import LoanApplicationForm from "../components/LoanApplicationForm"
 import { XCircle as XCircleIcon } from "lucide-react"
 import BorrowerLoanDetailsModal from "@/components/BorrowerLoanDetailsModal"
@@ -668,6 +670,41 @@ function SectionLoans({ loans, title, isHistory }) {
     const [stripePaymentData, setStripePaymentData] = useState(null);
     const [showManualPaymentModal, setShowManualPaymentModal] = useState(false);
     const [selectedPayment, setSelectedPayment] = useState(null);
+    const [paymentId, setPaymentId] = useState(null)
+
+
+    const paymentMethods = [
+        {
+            id: 'CASHAPP',
+            name: 'CashApp',
+            icon: <Smartphone className="w-5 h-5" />,
+            description: 'Pay with CashApp (Manual Confirmation Required)',
+            isManual: true
+        },
+        {
+            id: 'PAYPAL',
+            name: 'PayPal',
+            icon: <DollarSign className="w-5 h-5" />,
+            description: 'Pay with PayPal (Automated Transfers)',
+            isManual: false
+        },
+        {
+            id: 'ZELLE',
+            name: 'Zelle',
+            icon: <CreditCard className="w-5 h-5" />,
+            description: 'Pay with Zelle (Manual Confirmation Required)',
+            isManual: true
+        },
+        {
+            id: 'INTERNAL_WALLET',
+            name: 'Internal Wallet',
+            icon: <Wallet className="w-5 h-5" />,
+            description: 'Use internal wallet (Automated)',
+            isManual: false
+        }
+    ];
+
+
 
     const handlePayment = async (loan) => {
         try {
@@ -787,8 +824,14 @@ function SectionLoans({ loans, title, isHistory }) {
 
     const openPaymentModal = (loan) => {
         setShowPaymentModal(loan);
-        setSelectedPaymentMethod('INTERNAL_WALLET'); // Reset to default
+        setSelectedPaymentMethod(loan.agreedPaymentMethod); // Reset to default
+        // console.log(loan.lender.id);
+
+        const id = getPrefferedPaymentId(loan.lender.id, loan.agreedPaymentMethod)
+        setPaymentId(id)
     };
+
+
 
     return (
         <div>
@@ -1078,6 +1121,7 @@ function SectionLoans({ loans, title, isHistory }) {
                                             <p className="text-sm text-gray-600">Total Loan: ${showPaymentModal.totalPayable.toFixed(2)}</p>
                                             <p className="text-sm text-gray-600">Already Paid: ${totalConfirmedPaymentsBorrowerToLender.toFixed(2)}</p>
                                             <p className="text-sm text-gray-600">To: {showPaymentModal.lender.fullName}</p>
+                                            <p className="text-sm text-gray-600">{showPaymentModal.agreedPaymentMethod}: {paymentId}</p>
                                         </>
                                     );
                                 })()}
@@ -1088,11 +1132,36 @@ function SectionLoans({ loans, title, isHistory }) {
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Payment Method
                             </label>
-                            <PaymentMethodSelector
+                            {/* <PaymentMethodSelector
                                 selectedMethod={selectedPaymentMethod}
                                 onMethodSelect={setSelectedPaymentMethod}
                                 disabled={paymentLoading === showPaymentModal.id}
-                            />
+                            /> */}
+
+                            {paymentMethods.map((method) => (
+                                method.id == showPaymentModal.agreedPaymentMethod ?
+                                    <button
+                                        key={method.id}
+                                        className="w-full p-3 flex items-center justify-between hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg transition-colors"
+                                    >
+                                        <div className="flex items-center space-x-3">
+                                            {method.icon}
+                                            <div className="text-left">
+                                                <p className="font-medium flex items-center">
+                                                    {method.name}
+                                                    {method.isManual && (
+                                                        <span className="ml-2 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">
+                                                            Manual
+                                                        </span>
+                                                    )}
+                                                </p>
+                                                <p className="text-sm text-gray-500">{method.description}</p>
+                                            </div>
+                                        </div>
+                                    </button> : ""
+                            ))}
+
+
                         </div>
 
                         <div className="flex gap-3">
