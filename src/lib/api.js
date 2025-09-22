@@ -176,6 +176,11 @@ export async function updateRelationship(relationshipId, payload) {
 }
 
 
+
+
+
+
+
 // Borrower APIs
 export async function fetchBorrowerLoans() {
   const res = await instance.get('/borrower/loans')
@@ -188,7 +193,7 @@ export async function fetchBorrowerRelationships() {
 }
 
 export async function requestLoan({ lenderId, amount, paybackDays, signedBy, agreementText, preferredPaymentMethod, lenderTermId, agreedPaymentAccountId, agreedPaymentMethod }) {
-  const res = await instance.post('/borrower/loans', { lenderId, amount, paybackDays, signedBy, agreementText, preferredPaymentMethod, lenderTermId,agreedPaymentAccountId, agreedPaymentMethod })
+  const res = await instance.post('/borrower/loans', { lenderId, amount, paybackDays, signedBy, agreementText, preferredPaymentMethod, lenderTermId, agreedPaymentAccountId, agreedPaymentMethod })
   return res.data
 }
 
@@ -202,9 +207,9 @@ export async function markLoanAsCompleted(loanId) {
   return res.data
 }
 
-export async function checkMultipleLoans({lenderId, lenderTermId}) {
+export async function checkMultipleLoans({ lenderId, lenderTermId }) {
   // console.log(lenderId, lenderTermId);
-  
+
   const res = await instance.post('/borrower/loans/multiple', { lenderId, lenderTermId })
   return res.data
 }
@@ -319,10 +324,13 @@ export async function testAuditLogging() {
   return response.data;
 }
 
+
+
+
 // Payment APIs
 export async function processPayment({ loanId, amount, method, payerRole, receiverRole }) {
   // console.log(loanId, amount, method, payerRole, receiverRole);
-  
+
   const res = await instance.post('/payment', { loanId, amount, method, payerRole, receiverRole })
   return res.data
 }
@@ -332,12 +340,13 @@ export async function fetchLoanPayments(loanId) {
   return res.data
 }
 
+
 // Confirm PayPal payment
 export async function confirmPayPalPayment({ paymentId, payerId, dbPaymentId }) {
-  const res = await instance.post('/payment/confirm-paypal', { 
-    paymentId, 
-    payerId, 
-    dbPaymentId 
+  const res = await instance.post('/payment/confirm-paypal', {
+    paymentId,
+    payerId,
+    dbPaymentId
   });
   return res.data;
 }
@@ -353,12 +362,22 @@ export async function uploadPaymentScreenshot(formData) {
 }
 
 export async function confirmManualPayment({ paymentId, role }) {
-  const res = await instance.post('/payments/confirm-manual-payment', { 
-    paymentId, 
-    role 
+  const res = await instance.post('/payments/confirm-manual-payment', {
+    paymentId,
+    role
   });
   return res.data;
 }
+
+
+
+// payment-account APIs
+
+export async function getPrefferedPaymentId(userId, method) {
+  const res = await instance.post(`/payment-accounts/preffered-method`, {userId, method})
+  return res.data
+}
+
 
 
 
